@@ -12,7 +12,6 @@ class Calculation(Base):
     type = Column(String(50))
     data = Column(String(1000))
 
-
 class Menu:
     def __init__(self, session):
         self.session = session
@@ -24,7 +23,8 @@ class Menu:
         distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
         result = f"Расстояние между точками: {distance:.5f}"
 
-        self.session.add(type="distance", data=result)
+        calculation = Calculation(type="distance", data=f"{distance:.5f}")
+        self.session.add(calculation)
         self.session.commit()
 
         print(result)
@@ -35,9 +35,10 @@ class Menu:
         print(sample_dict)
         item_to_remove = input("Введите элемент для удаления: ")
         sample_dict.pop(item_to_remove, None)
-
-        calculation = Calculation(type="dict", data=str(list(sample_dict.keys())))
-        self.session.add(calculation)
+        self.session.add_all([
+            Calculation(type="set", data=str(set(sample_dict.keys()))),
+            Calculation(type="dict", data=str(sample_dict)),
+        ])
         self.session.commit()
 
         print("Ключи словаря:", list(sample_dict.keys()))
@@ -58,14 +59,14 @@ class Menu:
         wb = openpyxl.Workbook()
         ws = wb.active
 
-        calculations = self.session.query(Calculation).all()
-        for i, calculation in enumerate(calculations, 1):
-            ws.append([calculation.type, calculation.data])
+        data = self.session.query(Calculation).all()
+        for i, item in enumerate(data, 1):
+            ws.append([item.type, item.data])
 
         wb.save("calculations.xlsx")
 
-        for calculation in calculations:
-            print(calculation.type, calculation.data)
+        for item in data:
+            print(item.type, item.data)
 
 
 def main():
