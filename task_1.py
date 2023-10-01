@@ -33,6 +33,7 @@ class Menu:
     def create_set_and_dict(self):
         items = [input(f"Введите элемент {i + 1}: ") for i in range(3)]
         sample_dict = {item: len(item) for item in items}
+        print(sample_dict)
         item_to_remove = input("Введите элемент для удаления: ")
         sample_dict.pop(item_to_remove, None)
 
