@@ -24,8 +24,7 @@ class Menu:
         distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
         result = f"Расстояние между точками: {distance:.5f}"
 
-        calculation = Calculation(type="distance", data=result)
-        self.session.add(calculation)
+        self.session.add(type="distance", data=result)
         self.session.commit()
 
         print(result)
