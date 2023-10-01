@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 class Calculation(Base):
-    __tablename__ = 'calculations'
+    __tablename__ = 'task_1'
     id = Column(Integer, Sequence('calculation_id_seq'), primary_key=True)
     type = Column(String(50))
     data = Column(String(1000))
@@ -69,13 +69,16 @@ class Menu:
 
 
 def main():
-    DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/task_1"
-    engine = create_engine(DATABASE_URL)
-    connection = engine.connect()
+    DATABASE_URL = "mysql+pymysql://root:root@localhost:3306"
+    engine_no_db = create_engine(DATABASE_URL)
+    connection = engine_no_db.connect()
     connection.execute(text(f"CREATE DATABASE IF NOT EXISTS task_1"))
     connection.close()
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
+
+    DATABASE_URL_DB = "mysql+pymysql://root:root@localhost:3306/task_1"
+    engine_with_db = create_engine(DATABASE_URL_DB)
+    Base.metadata.create_all(engine_with_db)
+    Session = sessionmaker(bind=engine_with_db)
     session = Session()
 
     menu = Menu(session)
