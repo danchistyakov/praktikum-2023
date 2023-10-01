@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, Column, Integer, String, Sequence
+from sqlalchemy import create_engine, Column, Integer, String, Sequence, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 import math
 import openpyxl
 
 Base = declarative_base()
+
 
 class Calculation(Base):
     __tablename__ = 'calculations'
@@ -20,7 +21,7 @@ class Menu:
         x1, y1 = map(float, input("Введите координаты первой точки (x1, y1): ").strip().split())
         x2, y2 = map(float, input("Введите координаты второй точки (x2, y2): ").strip().split())
 
-        distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+        distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
         result = f"Расстояние между точками: {distance:.5f}"
 
         calculation = Calculation(type="distance", data=result)
@@ -30,7 +31,7 @@ class Menu:
         print(result)
 
     def create_set_and_dict(self):
-        items = [input(f"Введите элемент {i+1}: ") for i in range(3)]
+        items = [input(f"Введите элемент {i + 1}: ") for i in range(3)]
         sample_dict = {item: len(item) for item in items}
         item_to_remove = input("Введите элемент для удаления: ")
         sample_dict.pop(item_to_remove, None)
@@ -70,6 +71,9 @@ class Menu:
 def main():
     DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/task_1"
     engine = create_engine(DATABASE_URL)
+    connection = engine.connect()
+    connection.execute(text(f"CREATE DATABASE IF NOT EXISTS task_1"))
+    connection.close()
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -98,6 +102,7 @@ def main():
             break
         else:
             print("Неизвестный выбор!")
+
 
 if __name__ == "__main__":
     main()
