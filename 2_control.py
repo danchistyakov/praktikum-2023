@@ -43,7 +43,9 @@ class Tuples:
         print(flat_list[index1:index2 + 1])
 
     def slice_by_index(self):
-        items = self.session.query(TupleData).filter(TupleData.id <= 3).all()
+        index1 = int(input("Введите первый индекс: "))
+        index2 = int(input("Введите второй индекс: "))
+        items = self.session.query(TupleData).filter(TupleData.id.between(index1 + 1, index2 + 1)).all()
         for item in items:
             print(item.int_data, item.str_data, item.bool_data)
 
