@@ -30,7 +30,6 @@ class Tuples:
             TupleData(int_data=int(result_tuple[0]), str_data=result_tuple[1], bool_data=bool(result_tuple[2])),
             TupleData(int_data=int(result_tuple[3]), str_data=result_tuple[4], bool_data=bool(result_tuple[5])),
             TupleData(int_data=int(result_tuple[6]), str_data=result_tuple[7], bool_data=bool(result_tuple[8])),
-            TupleData(int_data=int(result_tuple[9])),
         ])
         self.session.commit()
         print("Кортеж создан и сохранен в MySQL.")
