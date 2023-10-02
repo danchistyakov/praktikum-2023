@@ -6,7 +6,7 @@ def distance_between_points():
     distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
     result = f"Расстояние между точками: {distance:.5f}"
 
-    print (result)
+    print(result)
 
 def create_set_and_dict():
     items = [input(f"Введите элемент {i + 1}: ") for i in range(3)]
