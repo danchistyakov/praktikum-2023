@@ -2,6 +2,8 @@ from sqlalchemy import create_engine, Column, Integer, String, Sequence, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 import ast
 import openpyxl
+import pandas as pd
+
 
 Base = declarative_base()
 
@@ -83,17 +85,18 @@ class List:
         keys_values_list = list(current_dict.items())
         print("Ключи и значения словаря:", keys_values_list)
 
-    def export_updated_dict_to_excel(self):  # Используем self для доступа к атрибутам экземпляра
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.append(['ID', 'List One', 'List Two', 'Dictionary'])
-
+    def export_updated_dict_to_excel(self):
         records = self.session.query(ListToDict).all()
+        data = {'ID': [], 'List One': [], 'List Two': [], 'Dictionary': []}
 
         for record in records:
-            # Теперь просто добавляем обновленные данные из базы данных в Excel
-            ws.append([record.id, record.list_one, record.list_two, record.list_three, record.dictionary])  # Это уже обновленные данны
-        wb.save('updated_data.xlsx')
+            data['ID'].append(record.id)
+            data['List One'].append(record.list_one)
+            data['List Two'].append(record.list_two)
+            data['Dictionary'].append(record.dictionary)
+
+        df = pd.DataFrame(data)
+        df.to_excel('updated_data.xlsx', index=False)
         print("Файл 'updated_data.xlsx' успешно сохранен.")
 
 
