@@ -45,85 +45,58 @@ class List:
         self.session.commit()
         print("Словарь создан и сохранен.")
 
-    def add_to_dict_and_update(self):
-        # Получение последней записи из базы данных
+
+    def manage_dict_operations(self):
+            # Получение последней записи из базы данных
         last_entry = self.session.query(ListToDict).order_by(ListToDict.id.desc()).first()
+
         if not last_entry:
             print("Сначала введите списки.")
-            return
+        else:
+                # Ввод новых элементов для словаря
+            print("Введите новый ключ для словаря:")
+            new_key = input()
+            print("Введите новое значение для словаря:")
+            new_value = input()
 
-        # Предложение ввести новые данные для словаря
-        print("Введите новый ключ для словаря:")
-        new_key = input()
-        print("Введите новое значение для словаря:")
-        new_value = input()
+                # Обновление словаря с проверкой существует ли он уже в базе данных
+            current_dict = ast.literal_eval(last_entry.dictionary) if last_entry.dictionary else {}
+            current_dict[new_key] = new_value  # Добавляем новый элемент в словарь
+            last_entry.dictionary = str(current_dict)  # Сохраняем обновленный словарь в строковом формате
+            self.session.commit()  # Фиксируем изменения в базе данных
+            print("Элемент добавлен в словарь, и словарь обновлен в базе данных.")
 
-        # Обновление словаря с проверкой существует ли он уже в базе данных
-        if last_entry.dictionary:  # Если словарь существует, загружаем и обновляем его
-            current_dict = ast.literal_eval(last_entry.dictionary)
-        else:  # Если словаря нет, инициализируем новый
-            current_dict = {}
-
-        current_dict[new_key] = new_value  # Добавляем новый элемент в словарь
-        last_entry.dictionary = str(current_dict)  # Сохраняем обновленный словарь в строковом формате
-        self.session.commit()  # Фиксируем изменения в базе данных
-        print("Элемент добавлен в словарь, и словарь обновлен в базе данных.")
-
-    def update_dictionary(self):
-        # Select all list pairs and update dictionaries
-        all_entries = self.session.query(ListToDict).all()
+                # Обновление всех словарей на основе текущих списков
+            all_entries = self.session.query(ListToDict).all()
         for entry in all_entries:
-            list_one = ast.literal_eval(entry.list_one)
-            list_two = ast.literal_eval(entry.list_two)
+            list_one = ast.literal_eval(entry.list_one) if entry.list_one else []
+            list_two = ast.literal_eval(entry.list_two) if entry.list_two else []
             entry.dictionary = str(dict(zip(list_one, list_two)))
-
         self.session.commit()
         print("Все словари обновлены на основе текущих списков.")
 
-    def get_last_dictionary(self):
-        last_entry = self.session.query(ListToDict).order_by(ListToDict.id.desc()).first()
-        if not last_entry or not last_entry.dictionary:
-            print("Сначала выполните преобразование в словарь.")
-            return None
-        return ast.literal_eval(last_entry.dictionary)
+                # Печать длины последнего словаря
+        if current_dict:  # Текущий словарь уже загружен выше
+            print("Длина словаря:", len(current_dict))
 
-    def print_dictionary_length(self):
-        dictionary = self.get_last_dictionary()
-        if dictionary is not None:
-            print("Длина словаря:", len(dictionary))
+                # Печать ключей и значений последнего словаря
+        keys_values_list = list(current_dict.items())
+        print("Ключи и значения словаря:", keys_values_list)
 
-    def print_dictionary_keys_values(self):
-        dictionary = self.get_last_dictionary()
-        if dictionary is not None:
-            keys_values_list = list(dictionary.items())
-            print("Ключи и значения словаря:", keys_values_list)
-
-    import openpyxl  # Убедитесь, что openpyxl установлен
-
-    def save_to_excel(self):
-        items = self.session.query(ListToDict).all()  # Получаем все записи из таблицы
-        wb = openpyxl.Workbook()  # Создаем новую книгу Excel
-        ws = wb.active  # Получаем активный лист в книге
-
-        # Добавляем заголовки столбцов в первую строку
+    def export_updated_dict_to_excel(self):  # Используем self для доступа к атрибутам экземпляра
+        wb = openpyxl.Workbook()
+        ws = wb.active
         ws.append(['ID', 'List One', 'List Two', 'Dictionary'])
 
-        # Проходимся по всем записям и добавляем данные в лист Excel
-        for item in items:
-            # Парсим строки обратно в объекты Python перед добавлением
-            list_one = ast.literal_eval(item.list_one) if item.list_one else []
-            list_two = ast.literal_eval(item.list_two) if item.list_two else []
-            dictionary = ast.literal_eval(item.dictionary) if item.dictionary else {}
+        records = self.session.query(ListToDict).all()
 
-            # Добавляем данные в строку
-            ws.append([item.id, list_one, list_two, dictionary])
-
-        # Сохраняем файл Excel
-        wb.save("data.xlsx")
-        print("Данные сохранены в Excel.")
+        for record in records:
+            # Теперь просто добавляем обновленные данные из базы данных в Excel
+            ws.append([record.id, record.list_one, record.list_two, record.list_three, record.dictionary])  # Это уже обновленные данны
+        wb.save('updated_data.xlsx')
+        print("Файл 'updated_data.xlsx' успешно сохранен.")
 
 
-# Определение main() без неиспользуемых методов
 def main():
     DATABASE_URL = "mysql+pymysql://root:root@localhost:3306"
     engine_no_db = create_engine(DATABASE_URL)
@@ -143,11 +116,9 @@ def main():
         print("""
         1. Ввод списков, сохранение и вывод из MySQL.
         2. Преобразование два списка в словарь, сохранение и вывод из MySQL.
-        3. Добавление элемента в словарь и обновление всех текущих элементов.
-        4. Вывод длины словаря.
-        5. Вывод всех ключей и значений словаря в виде списка.
-        6. Сохранение данныч из MySQL в Excel и вывод на экран.
-        7. Выход.
+        3. Добавление элемента в словарь и обновление всех текущих элементов, вывод длины словаря,вывод всех ключей и значений словаря в виде списка.
+        4. Сохранение данныx из MySQL в Excel и вывод на экран.
+        5. Выход.
         """)
         choice = input("Выберите действие: ")
         if choice == "1":
@@ -155,14 +126,10 @@ def main():
         elif choice == "2":
             list_manager.lists_to_dict_and_save()
         elif choice == "3":
-            list_manager.add_to_dict_and_update()
+            list_manager.manage_dict_operations()
         elif choice == "4":
-            list_manager.print_dictionary_length()
+            list_manager.export_updated_dict_to_excel()
         elif choice == "5":
-            list_manager.print_dictionary_keys_values()
-        elif choice == "6":
-            list_manager.save_to_excel()
-        elif choice == "7":
             break
         else:
             print("Неизвестный выбор!")
