@@ -130,7 +130,6 @@ def main():
         elif choice == "2":
             print_odds_before_stop(cursor, connection)
             remove_number(cursor, connection)
-            generate_unique_list(cursor, connection)
         elif choice == "3":
             save_to_excel(cursor, connection)
         elif choice == "4":
