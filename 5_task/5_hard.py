@@ -12,30 +12,51 @@ config = {
 }
 
 
-def set_lists(cursor):
+def set_lists(cursor, connection):
     raw_list = input('Введите список элементов для задачи 1: ')
     str_list = raw_list.split(' ')
-    data = list(map(int, str_list))
-    cursor.execute("INSERT INTO task_5_table (data) VALUES ('data')")
+    list_as_string = ', '.join(str_list)
+    sql = """
+    INSERT INTO task_5_table (id, data) VALUES (%s, %s) AS new_values (id, data)
+    ON DUPLICATE KEY UPDATE data = new_values.data;
+    """
+    values = (1, list_as_string,)
+    cursor.execute(sql, values)
     raw_list = input('Введите список элементов для задачи 1: ')
     str_list = raw_list.split(' ')
-    data = list(map(int, str_list))
-    cursor.execute("INSERT INTO task_5_table (data) VALUES ('data')")
+    list_as_string = ', '.join(str_list)
+    values = (2, list_as_string,)
+    cursor.execute(sql, values)
+    connection.commit()
+    cursor.execute("SELECT data FROM task_5_table")
+    result = cursor.fetchall()
+    for item in result:
+        print(item)
 
 
-def print_odds_before_stop(cursor):
+def print_odds_before_stop(cursor, connection):
     stop = 71278
-    raw_list = input('Введите список элементов: ')
-    str_list = raw_list.split(' ')
-    num_list = list(map(int, str_list))
+    cursor.execute("SELECT data FROM task_5_table WHERE id = 1")
+    raw_list = cursor.fetchone()[0]
+    print(raw_list)
+    num_list = [int(number) for number in raw_list.split(',')]
     print(num_list)
-    result = []
+    filtered_list = []
     for item in num_list:
         if item == stop:
             break
         if item % 2 == 1:
-            result.append(item)
-    cursor.execute("INSERT INTO task_5_table (data) VALUES (result)")
+            filtered_list.append(item)
+    sql = """
+        INSERT INTO task_5_table (id, data) VALUES (%s, %s) AS new_values (id, data)
+        ON DUPLICATE KEY UPDATE data = new_values.data;
+        """
+    str_value = ', '.join(filtered_list)
+    values = (1, str_value)
+    cursor.execute(sql, values)
+    connection.commit()
+    cursor.execute("SELECT data FROM task_5_table WHERE id = 1")
+    result = cursor.fetchone()
     return result
 
 
@@ -82,9 +103,10 @@ def main():
         """)
         choice = input("Выберите действие: ")
         if choice == "1":
-            set_lists(cursor)
+            set_lists(cursor, connection)
         elif choice == "2":
-            remove_number()
+            print_odds_before_stop(cursor, connection)
+            remove_number(cursor, connection)
         elif choice == "3":
             generate_unique_list()
         elif choice == "4":
