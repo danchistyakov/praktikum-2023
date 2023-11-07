@@ -92,7 +92,7 @@ class List:
 
         for record in records:
             # Теперь просто добавляем обновленные данные из базы данных в Excel
-            ws.append([record.id, record.list_one, record.list_two, record.list_three, record.dictionary])  # Это уже обновленные данны
+            ws.append([record.id, record.list_one, record.list_two, record.dictionary])  # Это уже обновленные данны
         wb.save('updated_data.xlsx')
         print("Файл 'updated_data.xlsx' успешно сохранен.")
 
