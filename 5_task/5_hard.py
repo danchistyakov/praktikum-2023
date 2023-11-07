@@ -22,7 +22,7 @@ def set_lists(cursor, connection):
     """
     values = (1, list_as_string,)
     cursor.execute(sql, values)
-    raw_list = input('Введите список элементов для задачи 1: ')
+    raw_list = input('Введите список элементов для задачи 2: ')
     str_list = raw_list.split(' ')
     list_as_string = ', '.join(str_list)
     values = (2, list_as_string,)
@@ -38,9 +38,7 @@ def print_odds_before_stop(cursor, connection):
     stop = 71278
     cursor.execute("SELECT data FROM task_5_table WHERE id = 1")
     raw_list = cursor.fetchone()[0]
-    print(raw_list)
     num_list = [int(number) for number in raw_list.split(',')]
-    print(num_list)
     filtered_list = []
     for item in num_list:
         if item == stop:
@@ -51,27 +49,54 @@ def print_odds_before_stop(cursor, connection):
         INSERT INTO task_5_table (id, data) VALUES (%s, %s) AS new_values (id, data)
         ON DUPLICATE KEY UPDATE data = new_values.data;
         """
-    str_value = ', '.join(filtered_list)
+    str_value = ', '.join(map(str, filtered_list))
     values = (1, str_value)
     cursor.execute(sql, values)
     connection.commit()
-    cursor.execute("SELECT data FROM task_5_table WHERE id = 1")
-    result = cursor.fetchone()
-    return result
+    print(filtered_list)
 
 
-def remove_number():
+def remove_number(cursor, connection):
     to_remove = 500
-    raw_list = input('Введите список элементов: ')
-    str_list = raw_list.split(' ')
-    num_list = list(map(int, str_list))
-    return [number for number in num_list if number != to_remove]
+    cursor.execute("SELECT data FROM task_5_table WHERE id = 2")
+    raw_list = cursor.fetchone()[0]
+    num_list = [int(number) for number in raw_list.split(',')]
+    filtered_list = [number for number in num_list if number != to_remove]
+    sql = """
+            INSERT INTO task_5_table (id, data) VALUES (%s, %s) AS new_values (id, data)
+            ON DUPLICATE KEY UPDATE data = new_values.data;
+            """
+    str_value = ', '.join(map(str, filtered_list))
+    values = (2, str_value)
+    cursor.execute(sql, values)
+    connection.commit()
+    print(filtered_list)
 
 
-def generate_unique_list():
+def generate_unique_list(cursor, connection):
     rn = [x for x in range(1, 76)]
     random.shuffle(rn)
-    return print(rn[:20])
+    filtered_list = rn[:20]
+    sql = """
+                INSERT INTO task_5_table (id, data) VALUES (%s, %s) AS new_values (id, data)
+                ON DUPLICATE KEY UPDATE data = new_values.data;
+                """
+    str_value = ', '.join(map(str, filtered_list))
+    values = (3, str_value)
+    cursor.execute(sql, values)
+    connection.commit()
+    print(filtered_list)
+
+def save_to_excel(cursor, connection):
+    cursor.execute("SELECT data FROM task_5_table")
+    raw_list = cursor.fetchall()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    for item in raw_list:
+        ws.append([item[0]])
+        print(item[0])
+    wb.save("data.xlsx")
+    print("Данные сохранены в Excel.")
 
 
 def main():
@@ -107,8 +132,9 @@ def main():
         elif choice == "2":
             print_odds_before_stop(cursor, connection)
             remove_number(cursor, connection)
+            generate_unique_list(cursor, connection)
         elif choice == "3":
-            generate_unique_list()
+            save_to_excel(cursor, connection)
         elif choice == "4":
             connection.close()
             break
