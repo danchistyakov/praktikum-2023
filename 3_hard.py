@@ -47,19 +47,17 @@ class List:
 
 
     def manage_dict_operations(self):
-            # Получение последней записи из базы данных
+        # Получение последней записи из базы данных
         last_entry = self.session.query(ListToDict).order_by(ListToDict.id.desc()).first()
 
         if not last_entry:
             print("Сначала введите списки.")
         else:
-                # Ввод новых элементов для словаря
-            print("Введите новый ключ для словаря:")
-            new_key = input()
-            print("Введите новое значение для словаря:")
-            new_value = input()
+            # Ввод новых элементов для словаря
+            new_key = input("Введите новый ключ для словаря: ")
+            new_value = input("Введите новое значение для словаря: ")
 
-                # Обновление словаря с проверкой существует ли он уже в базе данных
+            # Обновление словаря с проверкой существует ли он уже в базе данных
             current_dict = ast.literal_eval(last_entry.dictionary) if last_entry.dictionary else {}
             current_dict[new_key] = new_value  # Добавляем новый элемент в словарь
             last_entry.dictionary = str(current_dict)  # Сохраняем обновленный словарь в строковом формате
