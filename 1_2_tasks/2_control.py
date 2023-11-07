@@ -4,6 +4,7 @@ import openpyxl
 
 Base = declarative_base()
 
+
 class TupleData(Base):
     __tablename__ = 'task_1_control'
     id = Column(Integer, Sequence('tuple_id_seq'), primary_key=True)
@@ -17,12 +18,18 @@ class Tuples:
         self.session = session
 
     def create_tuple(self):
-        tuple = (1, "Hello", True, 2, "FinUniversity", False, 3, "Python", True, 4)
+        input_string = input("Введите элементы кортежа, разделенные пробелом: ")
+
+        # Преобразуем строку в список
+        input_list = input_string.split()
+
+        # Преобразуем список в кортеж
+        result_tuple = tuple(input_list)
+        print("Сформированный кортеж:", result_tuple)
         self.session.add_all([
-            TupleData(int_data=tuple[0], str_data=tuple[1], bool_data=tuple[2]),
-            TupleData(int_data=tuple[3], str_data=tuple[4], bool_data=tuple[5]),
-            TupleData(int_data=tuple[6], str_data=tuple[7], bool_data=tuple[8]),
-            TupleData(int_data=tuple[9]),
+            TupleData(int_data=int(result_tuple[0]), str_data=result_tuple[1], bool_data=bool(result_tuple[2])),
+            TupleData(int_data=int(result_tuple[3]), str_data=result_tuple[4], bool_data=bool(result_tuple[5])),
+            TupleData(int_data=int(result_tuple[6]), str_data=result_tuple[7], bool_data=bool(result_tuple[8])),
         ])
         self.session.commit()
         print("Кортеж создан и сохранен в MySQL.")
@@ -30,12 +37,14 @@ class Tuples:
     def get_by_index(self):
         index1 = int(input("Введите первый индекс: "))
         index2 = int(input("Введите второй индекс: "))
-        items = self.session.query(TupleData).filter(TupleData.id.in_([index1 + 1, index2 + 1])).all()
-        for item in items:
-            print(item.int_data, item.str_data, item.bool_data)
+        fields_data = self.session.query(TupleData.int_data, TupleData.str_data, TupleData.bool_data).all()
+        flat_list = [item for sublist in fields_data for item in sublist]
+        print(flat_list[index1:index2 + 1])
 
     def slice_by_index(self):
-        items = self.session.query(TupleData).filter(TupleData.id <= 3).all()
+        index1 = int(input("Введите первый индекс: "))
+        index2 = int(input("Введите второй индекс: "))
+        items = self.session.query(TupleData).filter(TupleData.id.between(index1 + 1, index2 + 1)).all()
         for item in items:
             print(item.int_data, item.str_data, item.bool_data)
 
