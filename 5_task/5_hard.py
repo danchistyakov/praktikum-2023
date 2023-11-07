@@ -82,6 +82,7 @@ def generate_unique_list(cursor, connection):
     values = (3, str_value)
     cursor.execute(sql, values)
     connection.commit()
+    print("Список рандомных элементов:")
     print(filtered_list)
 
 def save_to_excel(cursor, connection):
