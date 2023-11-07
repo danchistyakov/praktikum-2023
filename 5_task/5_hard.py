@@ -21,16 +21,14 @@ def set_lists(cursor, connection):
     """
     values = (1, list_as_string,)
     cursor.execute(sql, values)
+    print(list_as_string)
     raw_list = input('Введите список элементов для задачи 2: ')
     str_list = raw_list.split(' ')
     list_as_string = ', '.join(str_list)
     values = (2, list_as_string,)
     cursor.execute(sql, values)
     connection.commit()
-    cursor.execute("SELECT data FROM task_5_table")
-    result = cursor.fetchall()
-    for item in result:
-        print(item)
+    print(list_as_string)
 
 
 def print_odds_before_stop(cursor, connection):
@@ -128,6 +126,7 @@ def main():
         choice = input("Выберите действие: ")
         if choice == "1":
             set_lists(cursor, connection)
+            generate_unique_list(cursor, connection)
         elif choice == "2":
             print_odds_before_stop(cursor, connection)
             remove_number(cursor, connection)
