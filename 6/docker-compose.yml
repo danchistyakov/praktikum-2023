@@ -1,12 +1,16 @@
 version: "3"
 services:
-    db:
-        container_name: db
-        image: mysql:latest
-        ports:
-            - "3306:3306"
+    mongodb:
+        container_name: mongodb
+        image: mongo:latest
+        volumes:
+            - ./dbdata:/data/db
+        command: [ --auth ]
         environment:
-            MYSQL_ROOT_PASSWORD: root
+            MONGO_INITDB_ROOT_USERNAME: user
+            MONGO_INITDB_ROOT_PASSWORD: pass
+        ports:
+            - "27017:27017"
 
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
