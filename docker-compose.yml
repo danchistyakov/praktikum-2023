@@ -1,7 +1,7 @@
 version: "3"
 services:
   mongodb:
-    container_name: mongodb
+    container_name: mongodb_palchevskyi
     image: mongo:latest
     volumes:
       - ./dbdata:/data/db
@@ -11,3 +11,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
       - "27017:27017"
+
+networks:
+  my-network:
+    driver: bridge
+volumes:
+  dbdata:
