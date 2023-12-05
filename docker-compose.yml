@@ -1,22 +1,19 @@
 version: "3"
 services:
-    mongodb:
-        container_name: mongodb
-        image: mongo:latest
-        volumes:
-            - ./dbdata:/data/db
-        command: [ --auth ]
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: user
-            MONGO_INITDB_ROOT_PASSWORD: pass
-        ports:
-            - "27017:27017"
+  mongodb:
+    container_name: mongodb_palchevskyi
+    image: mongo:latest
+    volumes:
+      - ./dbdata:/data/db
+    command: [ --auth ]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - "27017:27017"
 
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        container_name: phpmyadmin
-        environment:
-            - PMA_ARBITRARY=1
-            - PMA_HOST=db
-        ports:
-            - "8081:80"
+networks:
+  my-network:
+    driver: bridge
+volumes:
+  dbdata:
