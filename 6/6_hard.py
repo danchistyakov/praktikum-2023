@@ -73,10 +73,9 @@ def export_mongodb_to_excel(collection):
     except Exception as e:
         print(f"Ошибка при экспорте данных из MongoDB в Excel: {e}")
 
-file_xlsl_name = 'output.xlsx'
-def display_excel_data_with_prettytable(file_xlsl_name):
+def display_excel_data_with_prettytable(file_xlsx_name):
     try:
-        data = pd.read_excel(file_xlsl_name)
+        data = pd.read_excel(file_xlsx_name)
         table = PrettyTable()
         table.field_names = data.columns.tolist()  # Установка заголовков столбцов
 
@@ -93,6 +92,7 @@ def main_menu():
     client = MongoClient('mongodb://user:pass@localhost:27017/?authSource=admin')
     db = client['points_database']
     collection = db['point']
+    file_xlsx_name = 'output.xlsx'
 
     while True:
         print("\n1. Создать файл 'Egor-1point.txt' и внести туда 55 разных строк с клавиатуры")
@@ -123,7 +123,7 @@ def main_menu():
         elif choice == "7":
             save_data_to_mongodb(collection)
             export_mongodb_to_excel(collection)
-            display_excel_data_with_prettytable(file_xlsl_name)
+            display_excel_data_with_prettytable(file_xlsx_name)
         elif choice == "0":
             break
 
