@@ -13,10 +13,10 @@ ID студента, № группы, ФИО, средний балл успе�
 4. Сохранить данные из MySQL в Excel и вывести из Excel на экран в виде таблички (форматированный
 вывод или PrettyTable).
 '''
-
 import csv
 from pymongo import MongoClient
 from prettytable import PrettyTable
+import pandas as pd
 
 # Создание пустого файла 'Egor-1point.csv'
 with open('Egor-1point.csv', 'w', newline='', encoding='utf-8') as file:
@@ -30,8 +30,6 @@ def connect_to_mongodb():
     client = MongoClient('mongodb://user:pass@localhost:27017/?authSource=admin')
     db = client['students_database']
     return db
-
-
 
 # Функция для добавления студентов в файл CSV
 def add_students_to_csv():
@@ -78,45 +76,17 @@ def add_students_to_csv():
         return  # Возвращаемся в основную функцию
 
 
-def main():
-    while True:
-        print("Меню:")
-        print("1. Создать файл и структуру таблицы")
-        print("2. Внести студентов в файл")
-        print("3. Сохранить данные в MongoDB и вывести на экран")
-        print("4. Сохранить данные из MongoDB в Excel и вывести на экран")
-        print("5. Выход")
-
-        choice = input("Выберите действие: ")
-
-        if choice == '1':
-            # Здесь будет код для создания файла и структуры таблицы
-            pass
-        elif choice == '2':
-            add_students_to_csv()  # Добавление студентов в файл
-            continue  # Возврат к главному меню после добавления студентов
-        elif choice == '3':
-            save_to_mongodb_from_csv()  # Сохранение данных из CSV в MongoDB
-            display_from_mongodb()  # Вывод данных из MongoDB
-        elif choice == '4':
-            # Здесь будет код для сохранения данных из MongoDB в Excel и вывода на экран
-            pass
-        elif choice == '5':
-            print("Выход из программы.")
-            break
-        else:
-            print("Пожалуйста, выберите существующий вариант.")
-
 # Функция для сохранения данных студентов из CSV в MongoDB
 def save_to_mongodb_from_csv():
     db = connect_to_mongodb()
     collection = db['students_collection']
 
-    with open('Egor-1point.csv', 'w', newline='', encoding='utf-8') as file:
-        # Создание объекта DictWriter для записи заголовков столбцов
-        fieldnames = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
+    with open('Egor-1point.csv', 'r', newline='', encoding='utf-8') as file:
+        # Создание объекта DictReader для чтения данных из CSV
+        reader = csv.DictReader(file)
+        students = [student for student in reader]
+
+    collection.insert_many(students)
 
 
 # Функция для вывода данных из MongoDB в виде таблицы
@@ -139,8 +109,64 @@ def display_from_mongodb():
     print(table)
 
 
+# Функция для сохранения данных из MongoDB в Excel
+def save_to_excel_from_mongodb():
+    db = connect_to_mongodb()
+    collection = db['students_collection']
+
+    data = list(collection.find({}, {'_id': 0}))  # Получаем данные из MongoDB
+
+    df = pd.DataFrame(data)  # Создаем DataFrame из данных
+
+    file_name = 'students_data.xlsx'  # Название файла Excel
+
+    df.to_excel(file_name, index=False)  # Сохраняем данные в Excel
+
+    return file_name
+
+
+# Функция для вывода данных из Excel в виде таблицы
+def display_from_excel():
+    file_name = save_to_excel_from_mongodb()  # Сохраняем данные в Excel
+    df = pd.read_excel(file_name)  # Читаем данные из Excel в DataFrame
+
+    table = PrettyTable()  # Создаем объект таблицы PrettyTable
+    table.field_names = df.columns.tolist()  # Устанавливаем заголовки столбцов
+
+    for row in df.itertuples():
+        table.add_row(row[1:])  # Добавляем строки из DataFrame в таблицу
+
+    print(table)  # Выводим таблицу на экран
+
+
+def main():
+    while True:
+        print("Меню:")
+        print("1. Создать файл и структуру таблицы")
+        print("2. Внести студентов в файл")
+        print("3. Сохранить данные в MongoDB и вывести на экран")
+        print("4. Сохранить данные из MongoDB в Excel и вывести на экран")
+        print("5. Выход")
+
+        choice = input("Выберите действие: ")
+
+        if choice == '1':
+            # Здесь будет код для создания файла и структуры таблицы
+            pass
+        elif choice == '2':
+            add_students_to_csv()  # Добавление студентов в файл
+            continue  # Возврат к главному меню после добавления студентов
+        elif choice == '3':
+            save_to_mongodb_from_csv()  # Сохранение данных из CSV в MongoDB
+            display_from_mongodb()  # Вывод данных из MongoDB
+        elif choice == '4':
+            display_from_excel()  # Вывод данных из Excel на экран в виде таблицы
+        elif choice == '5':
+            print("Выход из программы.")
+            break
+        else:
+            print("Пожалуйста, выберите существующий вариант.")
+
 
 if __name__ == "__main__":
-    # Здесь вызовите функции в соответствии с вашими потребностями, например:
-    save_to_mongodb_from_csv()  # Сохранение данных в MongoDB из CSV
-    display_from_mongodb()  # Вывод данных из MongoDB
+    main()
