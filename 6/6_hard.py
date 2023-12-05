@@ -26,22 +26,37 @@ def move_file():
 def file_size():
     return os.path.getsize("Kirill-3points/Egor-2points.txt")
 
-def save_and_display_from_mongodb():
-    client = MongoClient("mongodb://user:pass@localhost:27017/?authSource=admin")
-    db = client.your_database
-    collection = db.your_collection
+# Импорты и другие функции остаются без изменений
 
-    data = pd.DataFrame(list(collection.find()))
-    data.to_excel("output.xlsx")
+def save_data_to_mongodb(collection):
+    file_name = './Kirill-3points/Egor-2points.txt'
+    try:
+        # Чтение данных из текстового файла
+        with open(file_name, 'r') as file:
+            lines = file.readlines()
+            data_dict = [{'line': line.strip()} for line in lines]
+        collection.insert_many(data_dict)
+        print(f"Данные из файла '{file_name}' успешно сохранены в MongoDB.")
+    except FileNotFoundError:
+        print(f"Файл '{file_name}' не найден.")
+    except Exception as e:
+        print(f"Ошибка при сохранении данных в MongoDB: {e}")
 
-    excel_data = pd.read_excel("output.xlsx")
-    table = PrettyTable()
-    table.field_names = excel_data.columns.tolist()
-    for index, row in excel_data.iterrows():
-        table.add_row(row)
-    print(table)
+
+def export_mongodb_to_excel(collection):
+    try:
+        data = pd.DataFrame(list(collection.find()))
+        data.to_excel('output.xlsx', index=False)
+        print(f"Данные успешно сохранены в файл {'output.xlsx'}.")
+    except Exception as e:
+        print(f"Ошибка при экспорте данных из MongoDB в Excel: {e}")
+
 
 def main_menu():
+    client = MongoClient('mongodb://user:pass@localhost:27017/?authSource=admin')
+    db = client['points_database']
+    collection = db['point']
+
     while True:
         print("\n1. Создать файл 'Egor-1point.txt'")
         print("2. Вывести все папки и файлы")
@@ -49,7 +64,7 @@ def main_menu():
         print("4. Создать папку 'Kirill-3points'")
         print("5. Переместить файл в 'Kirill-3points'")
         print("6. Вывести размер файла 'Egor-2points.txt'")
-        print("8. Сохранить данные из MongoDB в Excel и вывести таблицу")
+        print("7. Сохранить данные из MongoDB в Excel и вывести таблицу")
         print("0. Выход")
 
         choice = input("\nВведите номер действия: ")
@@ -68,10 +83,11 @@ def main_menu():
             move_file()
         elif choice == "6":
             print(f"Размер файла: {file_size()} байт")
-        elif choice == "8":
-            save_and_display_from_mongodb()
+        elif choice == "7":
+            save_data_to_mongodb(collection)
+            export_mongodb_to_excel(collection)
         elif choice == "0":
             break
 
-if name == "__main__":
+if __name__ == "__main__":
     main_menu()
