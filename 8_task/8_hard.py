@@ -78,7 +78,7 @@ def get_from_mongodb(collection):
 
 
 def main_menu():
-    client = MongoClient('mongodb://user:pass@localhost:27016/?authSource=admin')
+    client = MongoClient('mongodb://user:pass@localhost:27017/?authSource=admin')
     db = client['students_database']
     collection = db['students']
     while True:

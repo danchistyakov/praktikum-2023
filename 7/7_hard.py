@@ -13,17 +13,17 @@ ID студента, № группы, ФИО, средний балл успе�
 4. Сохранить данные из MySQL в Excel и вывести из Excel на экран в виде таблички (форматированный
 вывод или PrettyTable).
 '''
+
 import csv
 from pymongo import MongoClient
 from prettytable import PrettyTable
 import pandas as pd
 
-# Создание пустого файла 'Egor-1point.csv'
-with open('Egor-1point.csv', 'w', newline='', encoding='utf-8') as file:
-    # Создание объекта DictWriter для записи заголовков столбцов
-    fieldnames = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
-    writer = csv.DictWriter(file, fieldnames=fieldnames)
-    writer.writeheader()
+def create_csv():
+    with open('Egor-1point.csv', 'w', newline='', encoding='utf-8') as file:
+        fieldnames = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
 
 # Функция для подключения к MongoDB
 def connect_to_mongodb():
@@ -151,8 +151,7 @@ def main():
         choice = input("Выберите действие: ")
 
         if choice == '1':
-            # Здесь будет код для создания файла и структуры таблицы
-            pass
+            create_csv()
         elif choice == '2':
             add_students_to_csv()  # Добавление студентов в файл
             continue  # Возврат к главному меню после добавления студентов
