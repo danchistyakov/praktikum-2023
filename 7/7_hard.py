@@ -18,50 +18,20 @@ import csv
 from pymongo import MongoClient
 from prettytable import PrettyTable
 
+# Создание пустого файла 'Egor-1point.csv'
+with open('Egor-1point.csv', 'w', newline='', encoding='utf-8') as file:
+    # Создание объекта DictWriter для записи заголовков столбцов
+    fieldnames = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+    writer.writeheader()
+
 # Функция для подключения к MongoDB
 def connect_to_mongodb():
-    client = MongoClient('localhost', "27017:21017", username='root', password='root')
+    client = MongoClient('mongodb://user:pass@localhost:27017/?authSource=admin')
     db = client['students_database']
     return db
 
 
-# Функция для сохранения данных студентов из CSV в MongoDB
-def save_to_mongodb_from_csv():
-    db = connect_to_mongodb()
-    collection = db['students_collection']
-
-    with open('Egor-1point.csv', 'r', newline='', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            collection.insert_one({
-                'ID студента': row['ID студента'],
-                '№ группы': row['№ группы'],
-                'ФИО': row['ФИО'],
-                'Средний балл': row['Средний балл'],
-                '№ зачетной книжки': row['№ зачетной книжки']
-            })
-
-# Функция для вывода данных из MongoDB в виде таблицы
-def display_from_mongodb():
-    db = connect_to_mongodb()
-    collection = db['students_collection']
-
-    table = PrettyTable()
-    table.field_names = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
-
-    for student in collection.find():
-        table.add_row([
-            student['ID студента'],
-            student['№ группы'],
-            student['ФИО'],
-            student['Средний балл'],
-            student['№ зачетной книжки']
-        ])
-
-    print(table)
-
-# Ваша функция для сохранения данных из MongoDB в Excel должна быть написана здесь
-# ... (другой код)
 
 # Функция для добавления студентов в файл CSV
 def add_students_to_csv():
@@ -136,6 +106,39 @@ def main():
             break
         else:
             print("Пожалуйста, выберите существующий вариант.")
+
+# Функция для сохранения данных студентов из CSV в MongoDB
+def save_to_mongodb_from_csv():
+    db = connect_to_mongodb()
+    collection = db['students_collection']
+
+    with open('Egor-1point.csv', 'w', newline='', encoding='utf-8') as file:
+        # Создание объекта DictWriter для записи заголовков столбцов
+        fieldnames = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+
+
+# Функция для вывода данных из MongoDB в виде таблицы
+def display_from_mongodb():
+    db = connect_to_mongodb()
+    collection = db['students_collection']
+
+    table = PrettyTable()
+    table.field_names = ['ID студента', '№ группы', 'ФИО', 'Средний балл', '№ зачетной книжки']
+
+    for student in collection.find():
+        table.add_row([
+            student['ID студента'],
+            student['№ группы'],
+            student['ФИО'],
+            student['Средний балл'],
+            student['№ зачетной книжки']
+        ])
+
+    print(table)
+
+
 
 if __name__ == "__main__":
     # Здесь вызовите функции в соответствии с вашими потребностями, например:
